@@ -8,7 +8,7 @@
 1. For the pretrained model, please download through this link, and put them into the ./checkpoints folder:
 
 GroundingBooth pretrained model:
-https://gowustl-my.sharepoint.com/:f:/r/personal/x_zhexiao_wustl_edu/Documents/groundingbooth_pretrained?csf=1&web=1&e=axKJyb
+https://gowustl-my.sharepoint.com/:f:/g/personal/x_zhexiao_wustl_edu/Er4Wy-K-u6FAlvOGUAK3NwoBFF8TpIlOcSlA5kjLVDXztA?e=dXFSQO
 
 DINOv2 pretrained model:
 

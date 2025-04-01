@@ -17,9 +17,6 @@ def add_additional_channels(state_dict, num_additional_channels):
 
 
 
-
-
-
 if __name__ == "__main__":
     # The following code will add additional 5 channels (for inpainting) to a GLIGEN ckpt 
 
