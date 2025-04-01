@@ -45,7 +45,6 @@ dinomodel = AutoModel.from_pretrained('facebook/dinov2-base').to(device)
 from torchvision import transforms
 from PIL import Image
 import cv2
-from grounding_scores import calculate_map,calculate_ap_single
 from torchmetrics.detection.mean_ap import MeanAveragePrecision
 from pytorch_fid import fid_score
 
