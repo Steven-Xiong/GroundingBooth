@@ -172,7 +172,7 @@ class BaseDataset_t2i(Dataset):
             
         while(True):
             try:
-                idx = np.random.randint(0, len(self.data)-1) #这一句不要就可以做测试了
+                idx = np.random.randint(0, len(self.data)-1) 
                 item = self.get_sample(idx)
                 return item
             except:
