@@ -3,6 +3,9 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
 
+📄 **Paper**: [GroundingBooth: Grounding Text-to-Image Customization](https://arxiv.org/abs/2409.08520)  
+🌐 **Project Page**: [https://groundingbooth.github.io/](https://groundingbooth.github.io/)
+
 > **Note**: We are currently working on code cleanup and organization. The codebase is being continuously improved.
 
 ## 🛠️ Installation
