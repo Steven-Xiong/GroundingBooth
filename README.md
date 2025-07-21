@@ -81,13 +81,12 @@ python infer_customized_all.py \
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `--folder` | str | `generation_samples` | Output directory for generated images |
-| `--batch_size` | int | `5` | Number of images to process simultaneously |
-| `--guidance_scale` | float | `7.5` | Classifier-free guidance scale |
-| `--dataset` | str | `tsv` | Dataset type (`tsv`, `mvimgnet`, `dreambench`) |
+| `--guidance_scale` | float | `3.0` | Classifier-free guidance scale |
+| `--dataset` | str | `dreambench` | Dataset type ( `dreambench`) |
 | `--ckpt_path` | str | Required | Path to model checkpoint |
 | `--position` | float×4 | `(0.25,0.25,0.75,0.75)` | Bounding box coordinates (x1,y1,x2,y2) |
 | `--negative_prompt` | str | Auto | Negative prompt for generation |
-| `--background` | flag | False | Preserve original background |
+| `--background` | flag | False | Include background object grounded generation |
 
 ## 🏋️ Training
 
@@ -101,17 +100,6 @@ python infer_customized_all.py \
 
 The `configs/` directory contains:
 - `inference.yaml`: Inference settings
-- `coco_text_dino.yaml`: COCO + text + DINO configuration
-- `anydoor.yaml`: AnyDoor model configuration
-
-### Grounding Input Processing
-
-The `grounding_input/` module handles:
-- Text grounding tokenization
-- Image grounding processing  
-- Combined text-image grounding
-- DINO feature integration
-
 
 
 ## 🤝 Contributing
