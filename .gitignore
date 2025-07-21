@@ -1,3 +1,4 @@
 checkpoints
 OUTPUT_test
 __pycache__
+inference_single.py
