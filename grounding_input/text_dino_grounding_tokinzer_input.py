@@ -9,7 +9,6 @@ import importlib
 
 
 def instantiate_from_config(config):
-    # import pdb; pdb.set_trace()
     if not "target" in config:
         if config == '__is_first_stage__':
             return None
@@ -30,8 +29,8 @@ class GroundingNetInput:
     def __init__(self):
         self.set = False 
         self.device = torch.device("cuda")
-        config = OmegaConf.load('/project/osprey/scratch/x.zhexiao/GLIGEN/configs/coco_text_dino.yaml') 
-        # self.image_encoder_global = instantiate_from_config(config.image_encoder_global).cuda() #to(self.device)
+        config = OmegaConf.load('configs/coco_text_dino.yaml') 
+        
     def prepare(self, batch):
         """
         batch should be the output from dataset.
@@ -40,7 +39,6 @@ class GroundingNetInput:
         """
 
         self.set = True
-        # import pdb; pdb.set_trace()
         boxes = batch['boxes'].float()
         masks = batch['masks'].float() 
         text_masks = batch['text_masks'].float()

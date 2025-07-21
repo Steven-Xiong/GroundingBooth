@@ -144,7 +144,6 @@ class BaseDataset_t2i(Dataset):
 
 
     def check_region_size(self, image, yyxx, ratio, mode = 'max'):
-        # import pdb; pdb.set_trace()
         pass_flag = True
         H,W = image.shape[0], image.shape[1]
         H,W = H * ratio, W * ratio
@@ -269,7 +268,6 @@ class BaseDataset_t2i(Dataset):
         - thickness: 边框的厚度。
         """
         H, W, C = tensor.shape
-        # import pdb; pdb.set_trace()
         
         x_min, y_min, x_max, y_max = boxes
         x_min, y_min, x_max, y_max = int(x_min * W), int(y_min * H), int(x_max * W), int(y_max * H)
@@ -288,7 +286,6 @@ class BaseDataset_t2i(Dataset):
         boxes = []
         layout_list = []
         layout_multi = torch.zeros(512, 512, 3)
-        # import pdb; pdb.set_trace()
         for anno in anno_list:
             # anno = anno_list[idx]
             ref_mask = self.lvis_api.ann_to_mask(anno)  #这个是ref condition
@@ -306,7 +303,6 @@ class BaseDataset_t2i(Dataset):
 
             ####### 6.14 换一种更简单的写法，只做原图级别的剪裁，对于其他也保持一致，保证是整个图
             # tar_box_yyxx_crop = box2squre(tar_image, ref_box_yyxx)
-            # import pdb; pdb.set_trace()
             ref_image_squared = pad_to_square(ref_image, pad_value = 0)  #7.25 修改
             ref_mask_3_squared = pad_to_square(ref_mask_3, pad_value = 0)
             ref_mask_3_squared = cv2.resize(ref_mask_3_squared, (512, 512), interpolation=cv2.INTER_AREA).astype(np.float32)
@@ -331,7 +327,6 @@ class BaseDataset_t2i(Dataset):
             layout_list.append(layout)
             layout_multi = self.draw_bboxes_all(layout_multi, bbox)
 
-        # import pdb; pdb.set_trace()
         if len(boxes) < self.max_boxes:
             boxes.extend([np.array([0, 0, 0, 0])] * (self.max_boxes - len(boxes)))
         elif len(boxes) >= self.max_boxes:
@@ -350,13 +345,11 @@ class BaseDataset_t2i(Dataset):
 
 
     def process_pairs_customized(self, ref_image, ref_mask, tar_image, tar_mask, max_ratio = 0.8):
-        # import pdb; pdb.set_trace()
         # assert mask_score(ref_mask) > 0.50   # 0.90 改低一点，增加训练数量
         # assert self.check_mask_area(ref_mask) == True
         # assert self.check_mask_area(tar_mask)  == True
 
         # Get the outline Box of the reference image
-        # import pdb; pdb.set_trace()
         ref_box_yyxx = get_bbox_from_mask(ref_mask)
         # print('ref_box_yyxx',ref_box_yyxx)
         assert self.check_region_size(ref_mask, ref_box_yyxx, ratio = 0.01, mode = 'min') == True
@@ -370,7 +363,6 @@ class BaseDataset_t2i(Dataset):
         y1,y2,x1,x2 = ref_box_yyxx
 
         ####### 6.14 换一种更简单的写法，只做原图级别的剪裁，对于其他也保持一致，保证是整个图
-        # import pdb; pdb.set_trace()
         # tar_box_yyxx_crop = box2squre(tar_image, ref_box_yyxx)
         ref_image = pad_to_square(ref_image, pad_value = 0)
         # tar_box_yyxx_squared = box2squre(ref_image, ref_box_yyxx) # square之后的bbox坐标
@@ -426,7 +418,6 @@ class BaseDataset_t2i(Dataset):
         
 
         # ========= Training Target ===========
-        # import pdb; pdb.set_trace()
         tar_box_yyxx = get_bbox_from_mask(tar_mask)
         # 6.6 不做expand
         # tar_box_yyxx = expand_bbox(tar_mask, tar_box_yyxx, ratio=[1.1,1.2]) #1.1  1.3
@@ -443,7 +434,6 @@ class BaseDataset_t2i(Dataset):
         tar_box_yyxx = box_in_box(tar_box_yyxx, tar_box_yyxx_crop)
         y1,y2,x1,x2 = tar_box_yyxx
 
-        # import pdb; pdb.set_trace()
         layout = np.zeros((tar_box_yyxx_crop[1]-tar_box_yyxx_crop[0], tar_box_yyxx_crop[3]-tar_box_yyxx_crop[2], 3), dtype=np.float32)
         layout[y1:y2,x1:x2,:] = [1.0, 1.0, 1.0]
         layout = pad_to_square(layout, pad_value = 0, random = False)
@@ -499,12 +489,10 @@ class BaseDataset_t2i(Dataset):
         collage = pad_to_square(collage, pad_value = 0, random = False).astype(np.uint8)
         collage_mask = pad_to_square(collage_mask, pad_value = 2, random = False).astype(np.uint8)
         H2, W2 = collage.shape[0], collage.shape[1]
-        # import pdb; pdb.set_trace()
         cropped_target_image = cv2.resize(cropped_target_image.astype(np.uint8), (512,512)).astype(np.float32)
         collage = cv2.resize(collage.astype(np.uint8), (512,512)).astype(np.float32)
         collage_mask  = cv2.resize(collage_mask.astype(np.uint8), (512,512),  interpolation = cv2.INTER_NEAREST).astype(np.float32) #可以直接当做layout
         collage_mask[collage_mask == 2] = -1
-        # import pdb; pdb.set_trace()
         # Prepairing dataloader items
         
         # masked_ref_image_aug = masked_ref_image_aug  / 127.5 -1.0
@@ -528,12 +516,10 @@ class BaseDataset_t2i(Dataset):
 
     def process_boxes_openimage(self, ref_image, ref_mask, tar_image, tar_mask, max_ratio = 0.8):
         # assert mask_score(ref_mask) > 0.90
-        # import pdb; pdb.set_trace()
         # assert self.check_mask_area(ref_mask) == True
         # assert self.check_mask_area(tar_mask)  == True
 
         # Get the outline Box of the reference image
-        # import pdb; pdb.set_trace()
         boxes = []
         layout_list = []
         layout_multi = torch.zeros(512, 512, 3)
@@ -555,7 +541,6 @@ class BaseDataset_t2i(Dataset):
         
         ####### 6.14 换一种更简单的写法，只做原图级别的剪裁，对于其他也保持一致，保证是整个图
         # tar_box_yyxx_crop = box2squre(tar_image, ref_box_yyxx)
-        # import pdb; pdb.set_trace()
         ref_image_squared = pad_to_square(ref_image, pad_value = 0)  #7.25 修改
         ref_mask_3_squared = pad_to_square(ref_mask_3, pad_value = 0)
         ref_mask_3_squared = cv2.resize(ref_mask_3_squared, (512, 512), interpolation=cv2.INTER_AREA).astype(np.float32)
@@ -606,12 +591,10 @@ class BaseDataset_t2i(Dataset):
     
     def process_pairs_customized_mvimagenet(self, ref_image, ref_mask, tar_image, tar_mask, max_ratio = 0.8):
         # assert mask_score(ref_mask) > 0.90
-        # import pdb; pdb.set_trace()
         # assert self.check_mask_area(ref_mask) == True
         # assert self.check_mask_area(tar_mask)  == True
 
         # Get the outline Box of the reference image
-        # import pdb; pdb.set_trace()
         ref_box_yyxx = get_bbox_from_mask(ref_mask)
         # print('ref_box_yyxx',ref_box_yyxx)
         assert self.check_region_size(ref_mask, ref_box_yyxx, ratio = 0.01, mode = 'min') == True
@@ -675,7 +658,6 @@ class BaseDataset_t2i(Dataset):
         
 
         # ========= Training Target ===========
-        # import pdb; pdb.set_trace()
         tar_box_yyxx = get_bbox_from_mask(tar_mask)
         
         
@@ -692,7 +674,6 @@ class BaseDataset_t2i(Dataset):
         tar_box_yyxx = box_in_box(tar_box_yyxx, tar_box_yyxx_crop)
         y1,y2,x1,x2 = tar_box_yyxx
 
-        # import pdb; pdb.set_trace()
         layout = np.zeros((tar_box_yyxx_crop[1]-tar_box_yyxx_crop[0], tar_box_yyxx_crop[3]-tar_box_yyxx_crop[2], 3), dtype=np.float32)
         layout[y1:y2,x1:x2,:] = [1.0, 1.0, 1.0]
         layout = pad_to_square(layout, pad_value = 0, random = False)
@@ -726,7 +707,6 @@ class BaseDataset_t2i(Dataset):
         ref_image_collage = cv2.resize(ref_image_collage.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = cv2.resize(ref_mask_compose.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = (ref_mask_compose > 128).astype(np.uint8)
-        # import pdb; pdb.set_trace()
         collage = np.zeros(cropped_target_image.shape, dtype=np.uint8)  #改成ones？
         collage[y1:y2,x1:x2,:] = ref_image_collage   #这里collage是否改为不要背景？ 
         # try:
@@ -736,7 +716,6 @@ class BaseDataset_t2i(Dataset):
         #     print('collage[y1:y2,x1:x2,:]', collage[y1:y2,x1:x2,:].shape)
         #     print('ref_image_collage', ref_image_collage.shape)
         
-        # import pdb; pdb.set_trace()
         collage_mask = cropped_target_image.copy() * 0.0   #这里翻一下, mask掉背景? 应该不用改
         collage_mask[y1:y2,x1:x2,:] = 1.0
 
@@ -745,24 +724,20 @@ class BaseDataset_t2i(Dataset):
             collage_mask = np.stack([cropped_tar_mask,cropped_tar_mask,cropped_tar_mask],-1)
 
         H1, W1 = collage.shape[0], collage.shape[1]
-        # import pdb; pdb.set_trace()
         cropped_target_image = pad_to_square(cropped_target_image, pad_value = 0, random = False).astype(np.uint8)
         collage = pad_to_square(collage, pad_value = 0, random = False).astype(np.uint8)
         collage_mask = pad_to_square(collage_mask, pad_value = 2, random = False).astype(np.uint8)
         H2, W2 = collage.shape[0], collage.shape[1]
-        # import pdb; pdb.set_trace()
         cropped_target_image = cv2.resize(cropped_target_image.astype(np.uint8), (512,512)).astype(np.float32)
         collage = cv2.resize(collage.astype(np.uint8), (512,512)).astype(np.float32)
         collage_mask  = cv2.resize(collage_mask.astype(np.uint8), (512,512),  interpolation = cv2.INTER_NEAREST).astype(np.float32) #可以直接当做layout
         collage_mask[collage_mask == 2] = -1
-        # import pdb; pdb.set_trace()
         # Prepairing dataloader items
         masked_ref_image_aug = masked_ref_image_aug  / 255 
         # masked_ref_image_aug = masked_ref_image_aug  / 127.5 -1.0
         cropped_target_image = cropped_target_image / 127.5 - 1.0
         collage = collage / 127.5 - 1.0         # [-1,1]之间
         collage = np.concatenate([collage, collage_mask[:,:,:1]  ] , -1)
-        # import pdb; pdb.set_trace()
         
 
         item = dict(
@@ -889,7 +864,6 @@ class OpenImagesDataset(BaseDataset_t2i):
 
     def __getitem__(self, i):
         example = {}
-        # import pdb; pdb.set_trace()
         input_ids, index, text = self.obtain_text('a')
         example["input_ids"] = input_ids
         example["index"] = index
@@ -949,7 +923,6 @@ class OpenImagesDatasetWithMask(OpenImagesDataset):
         self.size = size
         self.placeholder_token = placeholder_token
         self.set = set
-        # import pdb; pdb.set_trace()
         class_anno_path = os.path.join(data_root, 'annotations', f'oidv7-class-descriptions.csv')
         anno_files = pd.read_csv(class_anno_path)
         class_groups = anno_files.groupby(anno_files.LabelName)
@@ -1015,7 +988,6 @@ class OpenImagesDatasetWithMask(OpenImagesDataset):
         # self.prob_use_caption = 1.0
         # self.prob_use_ref = 1.0
         
-        # import pdb; pdb.set_trace()
         self.max_boxes = 10
         self.mode = self.set
 
@@ -1119,7 +1091,6 @@ class OpenImagesDatasetWithMask(OpenImagesDataset):
 
     def __getitem__(self, i):
         example = {}
-        # import pdb; pdb.set_trace()
         seg_name = self.bboxes_full[i % self.num_images][0]
         file_name = seg_name.split('_')[0] + '.jpg'
         img_path = os.path.join(self.data_root, 'images', self.set, file_name)
@@ -1146,7 +1117,6 @@ class OpenImagesDatasetWithMask(OpenImagesDataset):
         # augmentation for input image
         augged_image, augged_mask, add_caption = self.custom_aug(image_tensor)
         input_ids, index, text = self.obtain_text(add_caption)
-        # import pdb; pdb.set_trace()
 
         
         # subject class
@@ -1167,7 +1137,6 @@ class OpenImagesDatasetWithMask(OpenImagesDataset):
         ref_object_tensor = cv2.resize(object_tensor, (224, 224), interpolation=cv2.INTER_CUBIC)
         ref_image_tenser = cv2.resize(image_tensor, (224, 224), interpolation=cv2.INTER_CUBIC)
         ref_seg_tensor = cv2.resize(seg_tensor, (224, 224), interpolation=cv2.INTER_NEAREST)
-        # import pdb; pdb.set_trace()
         seg_mask = (seg_tensor[..., 0] // 255).astype(np.uint8)
         # items = self.process_pairs_customized_mvimagenet(image_tensor, seg_mask, image_tensor, seg_mask)  # add layout    #(500,333,3)
         
@@ -1178,7 +1147,6 @@ class OpenImagesDatasetWithMask(OpenImagesDataset):
         sampled_time_steps = self.sample_timestep()
         example['time_steps'] = sampled_time_steps
         
-        # import pdb; pdb.set_trace()
         example['ref'] = items['ref']
         example['jpg'] = items['jpg']
         example['layout'] = items['layout']

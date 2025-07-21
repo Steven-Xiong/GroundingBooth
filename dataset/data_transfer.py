@@ -35,7 +35,6 @@ def get_clip_feature(model, processor, input, is_image=False):
             if None in input: return None
         else:
             if input == None: return None
-        # import pdb; pdb.set_trace()    
         transform_to_pil = transforms.ToPILImage()
         image = transform_to_pil(input).convert("RGB")
         

@@ -112,17 +112,6 @@ train_dataset_names:
     ref_zero: False
     ref_mask: False
 
-  # Obj365Detection:
-  #   which_layer_text: before
-  #   which_layer_image: after_reproject
-  #   image_size: 512
-  #   max_boxes_per_data: 10
-  #   prob_use_caption: 0.5
-  #   random_drop_embedding: both 
-  #   random_crop: False
-  #   random_flip: False
-  #   ref_zero: False
-  #   ref_mask: False
   
 
 

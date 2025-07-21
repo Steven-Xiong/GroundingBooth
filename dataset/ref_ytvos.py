@@ -266,7 +266,6 @@ class BaseDataset_t2i(Dataset):
         # assert self.check_mask_area(tar_mask)  == True
 
         # Get the outline Box of the reference image
-        # import pdb; pdb.set_trace()
         ref_box_yyxx = get_bbox_from_mask(ref_mask)
         # print('ref_box_yyxx',ref_box_yyxx)
         # assert self.check_region_size(ref_mask, ref_box_yyxx, ratio = 0.01, mode = 'min') == True
@@ -327,7 +326,6 @@ class BaseDataset_t2i(Dataset):
         
 
         # ========= Training Target ===========
-        # import pdb; pdb.set_trace()
         tar_box_yyxx = get_bbox_from_mask(tar_mask)
         # 6.6 不做expand
         # tar_box_yyxx = expand_bbox(tar_mask, tar_box_yyxx, ratio=[1.0,1.2]) #1.1  1.3
@@ -344,7 +342,6 @@ class BaseDataset_t2i(Dataset):
         tar_box_yyxx = box_in_box(tar_box_yyxx, tar_box_yyxx_crop)
         y1,y2,x1,x2 = tar_box_yyxx
 
-        # import pdb; pdb.set_trace()
         layout = np.zeros((tar_box_yyxx_crop[1]-tar_box_yyxx_crop[0], tar_box_yyxx_crop[3]-tar_box_yyxx_crop[2], 3), dtype=np.float32)
         layout[y1:y2,x1:x2,:] = [1.0, 1.0, 1.0]
         layout = pad_to_square(layout, pad_value = 0, random = False)
@@ -464,7 +461,6 @@ class YTVOSDataset(BaseDataset_t2i):
     
     def prepare_metas(self):
         # read object information
-        # import pdb; pdb.set_trace()
         img_folder = self.img_folder
         with open(os.path.join(str(self.img_folder), 'meta.json'), 'r') as f:
             subset_metas_by_video = json.load(f)['videos']
@@ -505,7 +501,6 @@ class YTVOSDataset(BaseDataset_t2i):
         return len(self.metas)
         
     def __getitem__(self, idx):
-        # import pdb; pdb.set_trace()
         instance_check = False
         while not instance_check:
             meta = self.metas[idx]  # dict
@@ -556,7 +551,6 @@ class YTVOSDataset(BaseDataset_t2i):
                 mask_path = os.path.join(str(self.img_folder), 'Annotations', video, frame_name + '.png')
                 img = Image.open(img_path).convert('RGB')
                 mask = Image.open(mask_path).convert('P')
-                # import pdb; pdb.set_trace()
                 # print(img_path)
                 # create the target
                 label = torch.tensor(category_id) 
@@ -594,7 +588,6 @@ class YTVOSDataset(BaseDataset_t2i):
                 'orig_size': torch.as_tensor([int(h), int(w)]), 
                 'size': torch.as_tensor([int(h), int(w)])
             }
-            # import pdb; pdb.set_trace()
             
             # "boxes" normalize to [0, 1] and transform from xyxy to cxcywh in self._transform
             imgs, target = self._transforms(imgs, target) 
@@ -607,7 +600,6 @@ class YTVOSDataset(BaseDataset_t2i):
                 idx = random.randint(0, self.__len__() - 1)
             
             
-            # import pdb; pdb.set_trace()
             # imgs里面任意取两帧就行
             # Sampling frames
             T = len(imgs)
@@ -629,7 +621,6 @@ class YTVOSDataset(BaseDataset_t2i):
             target_img = (imgs[end_frame_index].numpy().transpose(1,2,0)*255).astype(np.uint8)   #(h,w,3) [0,1]改
             source_mask = (target['masks'][start_frame_index].numpy() > 0).astype(np.uint8)     #(h,w) [bool)改
             target_mask = (target['masks'][end_frame_index].numpy() > 0).astype(np.uint8)      ##(h,w) [bool)改
-            # import pdb; pdb.set_trace()
             # target_img = PIL.Image.fromarray(imgs[end_frame_index].numpy().astype(np.uint8).transpose(1,2,0))
             # source_mask = PIL.Image.fromarray(masks[start_frame_index].numpy().astype(np.uint8))
             # target_mask = PIL.Image.fromarray(masks[end_frame_index].numpy().astype(np.uint8))
@@ -657,10 +648,8 @@ class YTVOSDataset(BaseDataset_t2i):
             
             
             item_with_collage['layout_all'] = item_with_collage['layout']
-            # import pdb; pdb.set_trace()
             image_crop = self.preprocess(item_with_collage['ref']).float()
             item_with_collage['ref_processed'] = image_crop
-            # import pdb; pdb.set_trace()
             item_with_collage['ref'] = item_with_collage['ref'].transpose(2,0,1).astype(np.float32)
 
             # add random drop

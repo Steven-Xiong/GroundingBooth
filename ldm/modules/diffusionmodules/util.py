@@ -94,7 +94,6 @@ def betas_for_alpha_bar(num_diffusion_timesteps, alpha_bar, max_beta=0.999):
     :param max_beta: the maximum beta to use; use values lower than 1 to
                      prevent singularities.
     """
-    # import pdb; pdb.set_trace()
     betas = []
     for i in range(num_diffusion_timesteps):
         t1 = i / num_diffusion_timesteps

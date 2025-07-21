@@ -29,7 +29,6 @@ class ConCatDataset():
             if yaml_params is not None:
                 params.update(yaml_params)
             dataset = instantiate_from_config( dict(target=target, params=params) )
-            # import pdb; pdb.set_trace()
             self.datasets.append(dataset)
             for _ in range(repeat):
                 offset_map.append(  torch.ones(len(dataset))*cul_previous_dataset_length  )

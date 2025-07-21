@@ -11,7 +11,6 @@ class PositionNet(nn.Module):
         super().__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim 
-        # import pdb; pdb.set_trace()
         self.fourier_embedder = FourierEmbedder(num_freqs=fourier_freqs)
         self.position_dim = fourier_freqs*2*4 # 2 is sin&cos, 4 is xyxy 
 
@@ -43,7 +42,6 @@ class PositionNet(nn.Module):
         masks = masks.unsqueeze(-1) # B*N*1 
         text_masks = text_masks.unsqueeze(-1) # B*N*1 
         image_masks = image_masks.unsqueeze(-1) # B*N*1
-        # import pdb; pdb.set_trace()
         # embedding position (it may includes padding as placeholder)
         xyxy_embedding = self.fourier_embedder(boxes) # B*N*4 --> B*N*C
         xyxy_embedding_ref = self.fourier_embedder(ref_box)

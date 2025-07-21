@@ -253,7 +253,6 @@ class FrozenDinoV2Encoder(AbstractEncoder):
     def __init__(self, device="cuda", freeze=True):
         super().__init__()
         dinov2 = hubconf.dinov2_vitg14() 
-        # import pdb; pdb.set_trace()
         state_dict = torch.load(DINOv2_weight_path)
         dinov2.load_state_dict(state_dict, strict=False)
         self.model = dinov2.to(device)
@@ -270,7 +269,6 @@ class FrozenDinoV2Encoder(AbstractEncoder):
             param.requires_grad = False
 
     def forward(self, image):
-        # import pdb; pdb.set_trace()  #image:[B,3,224,224]
         if isinstance(image,list):
             image = torch.cat(image,0)
 
@@ -284,7 +282,6 @@ class FrozenDinoV2Encoder(AbstractEncoder):
         return hint
 
     def encode(self, image):
-        # import pdb; pdb.set_trace()
         return self(image)
 
 
@@ -311,7 +308,6 @@ class FrozenDinoV2EncoderFeatures(AbstractEncoder):
             param.requires_grad = False
 
     def forward(self, image):
-        # import pdb; pdb.set_trace()  #image:[B,3,224,224]
         if isinstance(image,list):
             image = torch.cat(image,0)
 

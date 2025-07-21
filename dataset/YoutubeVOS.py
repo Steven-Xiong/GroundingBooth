@@ -153,7 +153,6 @@ class BaseDataset_t2i(Dataset):
         assert self.check_mask_area(tar_mask)  == True
 
         # Get the outline Box of the reference image
-        # import pdb; pdb.set_trace()
         ref_box_yyxx = get_bbox_from_mask(ref_mask)
         # print('ref_box_yyxx',ref_box_yyxx)
         assert self.check_region_size(ref_mask, ref_box_yyxx, ratio = 0.01, mode = 'min') == True
@@ -163,12 +162,12 @@ class BaseDataset_t2i(Dataset):
         # plt.imsave('./random_image.png', ref_mask_3)
         
         masked_ref_image = ref_image * ref_mask_3 + np.zeros_like(ref_image) * 255 * (1-ref_mask_3) #(428, 640, 3) masked_ref_image.png   # 注意： ones 改zeros, 背景为黑
-        # 这里控制，如果ref object在裁剪区域之内就用crop，如果在之外就pad
+
         
         y1,y2,x1,x2 = ref_box_yyxx
         # print('ref_box_yyxx_before:',ref_box_yyxx)
         
-        #第二次训练不用了，任意位置生成, 这里Optional
+
         H, W, _ = masked_ref_image.shape
         
         ref_box_yyxx_tar = get_bbox_from_mask(tar_mask)
@@ -214,7 +213,6 @@ class BaseDataset_t2i(Dataset):
         
 
         # ========= Training Target ===========
-        # import pdb; pdb.set_trace()
         tar_box_yyxx = get_bbox_from_mask(tar_mask)
         # 6.6 不做expand
         # tar_box_yyxx = expand_bbox(tar_mask, tar_box_yyxx, ratio=[1.0,1.2]) #1.1  1.3
@@ -231,7 +229,6 @@ class BaseDataset_t2i(Dataset):
         tar_box_yyxx = box_in_box(tar_box_yyxx, tar_box_yyxx_crop)
         y1,y2,x1,x2 = tar_box_yyxx
 
-        # import pdb; pdb.set_trace()
         layout = np.zeros((tar_box_yyxx_crop[1]-tar_box_yyxx_crop[0], tar_box_yyxx_crop[3]-tar_box_yyxx_crop[2], 3), dtype=np.float32)
         layout[y1:y2,x1:x2,:] = [1.0, 1.0, 1.0]
         layout = pad_to_square(layout, pad_value = 0, random = False)
@@ -265,14 +262,12 @@ class BaseDataset_t2i(Dataset):
         ref_image_collage = cv2.resize(ref_image_collage.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = cv2.resize(ref_mask_compose.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = (ref_mask_compose > 128).astype(np.uint8)
-        # import pdb; pdb.set_trace()
         collage = np.zeros(cropped_target_image.shape, dtype=np.uint8)  #改成ones？
-        # collage = cropped_target_image.copy()   #这里collage是否改为不要背景？ 
+ 
 
         collage[y1:y2,x1:x2,:] = ref_image_collage
         
-        # import pdb; pdb.set_trace()
-        collage_mask = cropped_target_image.copy() * 0.0   #这里翻一下, mask掉背景? 应该不用改
+        collage_mask = cropped_target_image.copy() * 0.0
         collage_mask[y1:y2,x1:x2,:] = 1.0
 
         if np.random.uniform(0, 1) < 0.7: 
@@ -280,17 +275,14 @@ class BaseDataset_t2i(Dataset):
             collage_mask = np.stack([cropped_tar_mask,cropped_tar_mask,cropped_tar_mask],-1)
 
         H1, W1 = collage.shape[0], collage.shape[1]
-        # import pdb; pdb.set_trace()
         cropped_target_image = pad_to_square(cropped_target_image, pad_value = 0, random = False).astype(np.uint8)
         collage = pad_to_square(collage, pad_value = 0, random = False).astype(np.uint8)
         collage_mask = pad_to_square(collage_mask, pad_value = 2, random = False).astype(np.uint8)
         H2, W2 = collage.shape[0], collage.shape[1]
-        # import pdb; pdb.set_trace()
         cropped_target_image = cv2.resize(cropped_target_image.astype(np.uint8), (512,512)).astype(np.float32)
         collage = cv2.resize(collage.astype(np.uint8), (512,512)).astype(np.float32)
         collage_mask  = cv2.resize(collage_mask.astype(np.uint8), (512,512),  interpolation = cv2.INTER_NEAREST).astype(np.float32) #可以直接当做layout
         collage_mask[collage_mask == 2] = -1
-        # import pdb; pdb.set_trace()
         # Prepairing dataloader items
         masked_ref_image_aug = masked_ref_image_aug  / 255 
         # masked_ref_image_aug = masked_ref_image_aug  / 127.5 -1.0
@@ -398,22 +390,11 @@ class YoutubeVOSDataset(BaseDataset_t2i):
         prompt_list.append(class_key)
         prompt_list.extend([''] * (self.max_boxes - 1))
         item_with_collage['positive_all'] = ','.join(prompt_list)
-        # import pdb; pdb.set_trace()
             
-        # bbox需要归一化,是吗
-        # bbox = np.array(bbox,dtype=np.float32)   #这里的bbox对应的是原图尺寸 1920*1080
-        # bbox[0],bbox[1],bbox[2], bbox[3] = bbox[0]/tar_image.shape[0], bbox[1]/tar_image.shape[1], bbox[2]/tar_image.shape[0],bbox[3]/tar_image.shape[1]
-        
-        # y0, x0, y1, x1 = bbox[0],bbox[1],bbox[2], bbox[3]
-        # bbox[0],bbox[1],bbox[2], bbox[3] = x0, y0, x1, y1
-        # item_with_collage['boxes'] = np.concatenate((bbox.reshape(1,4), np.zeros((self.max_boxes-1,4))), axis=0) 
-        
-        # y1,y2,x1,x2 = item_with_collage['tar_box_yyxx_crop']
+
         item_with_collage['layout_all'] = item_with_collage['layout']
-        # import pdb; pdb.set_trace()
         image_crop = self.preprocess(item_with_collage['ref']).float()
         item_with_collage['ref_processed'] = image_crop
-        # import pdb; pdb.set_trace()
         item_with_collage['ref'] = item_with_collage['ref'].transpose(2,0,1).astype(np.float32)
         
         array = torch.zeros(self.max_boxes) #np.zeros(self.max_boxes,dtype=np.int32)

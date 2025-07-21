@@ -444,7 +444,6 @@ class BaseDataset_t2i(Dataset):
         - thickness: 边框的厚度。
         """
         H, W, C = tensor.shape
-        # import pdb; pdb.set_trace()
         
         x_min, y_min, x_max, y_max = boxes
         x_min, y_min, x_max, y_max = int(x_min * W), int(y_min * H), int(x_max * W), int(y_max * H)
@@ -465,7 +464,6 @@ class BaseDataset_t2i(Dataset):
         assert self.check_mask_area(tar_mask)  == True
 
         # Get the outline Box of the reference image
-        # import pdb; pdb.set_trace()
         ref_box_yyxx = get_bbox_from_mask(ref_mask)
         # print('ref_box_yyxx',ref_box_yyxx)
         assert self.check_region_size(ref_mask, ref_box_yyxx, ratio = 0.01, mode = 'min') == True
@@ -529,7 +527,6 @@ class BaseDataset_t2i(Dataset):
         
 
         # ========= Training Target ===========
-        # import pdb; pdb.set_trace()
         tar_box_yyxx = get_bbox_from_mask(tar_mask)
         
         tar_box_yyxx_crop = tar_box_yyxx 
@@ -545,13 +542,11 @@ class BaseDataset_t2i(Dataset):
         ref_image_collage = cv2.resize(ref_image_collage.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = cv2.resize(ref_mask_compose.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = (ref_mask_compose > 128).astype(np.uint8)
-        # import pdb; pdb.set_trace()
         collage = np.zeros(cropped_target_image.shape, dtype=np.uint8)  #改成ones？
         # collage = cropped_target_image.copy()   #这里collage是否改为不要背景？ 
 
         collage[y1:y2,x1:x2,:] = ref_image_collage
         
-        # import pdb; pdb.set_trace()
         collage_mask = cropped_target_image.copy() * 0.0   #这里翻一下, mask掉背景? 应该不用改
         collage_mask[y1:y2,x1:x2,:] = 1.0
 
@@ -565,12 +560,10 @@ class BaseDataset_t2i(Dataset):
         collage = pad_to_square(collage, pad_value = 0, random = False).astype(np.uint8)
         collage_mask = pad_to_square(collage_mask, pad_value = 2, random = False).astype(np.uint8)
         H2, W2 = collage.shape[0], collage.shape[1]
-        # import pdb; pdb.set_trace()
         cropped_target_image = cv2.resize(cropped_target_image.astype(np.uint8), (512,512)).astype(np.float32)
         collage = cv2.resize(collage.astype(np.uint8), (512,512)).astype(np.float32)
         collage_mask  = cv2.resize(collage_mask.astype(np.uint8), (512,512),  interpolation = cv2.INTER_NEAREST).astype(np.float32) #可以直接当做layout
         collage_mask[collage_mask == 2] = -1
-        # import pdb; pdb.set_trace()
         # Prepairing dataloader items
         masked_ref_image_aug = masked_ref_image_aug  / 255 
         # masked_ref_image_aug = masked_ref_image_aug  / 127.5 -1.0
@@ -637,7 +630,6 @@ class DreamBoothDataset(BaseDataset_t2i):
 
     
     def get_alpha_mask(self, mask_path):
-        # import pdb; pdb.set_trace()
         image = cv2.imread( mask_path) #, cv2.IMREAD_UNCHANGED
         mask = (image[:,:,-1] > 128).astype(np.uint8)
         return mask
@@ -651,7 +643,6 @@ class DreamBoothDataset(BaseDataset_t2i):
         image_path = os.path.join(dir_path, image_name)
 
         image = cv2.imread( image_path, cv2.IMREAD_UNCHANGED)
-        # import pdb; pdb.set_trace()
         mask_path = image_path.replace('.jpg','_mask.png')
         mask = self.get_alpha_mask(mask_path)
         # mask = (image[:,:,-1] > 128).astype(np.uint8)
@@ -666,7 +657,6 @@ class DreamBoothDataset(BaseDataset_t2i):
         tar_image = ref_image
         tar_mask = ref_mask
 
-        # import pdb; pdb.set_trace()
         item_with_collage = self.process_pairs_customized(ref_image, ref_mask, tar_image, tar_mask)
         sampled_time_steps = self.sample_timestep()
         item_with_collage['time_steps'] = sampled_time_steps
@@ -712,7 +702,6 @@ class DreamBoothDataset(BaseDataset_t2i):
        
         image_crop = self.preprocess(item_with_collage['ref']).float()
         item_with_collage['ref_processed'] = image_crop
-        # import pdb; pdb.set_trace()
         # print(item_with_collage['ref'].dtype())
         item_with_collage['ref'] = item_with_collage['ref'].transpose(2,0,1).astype(np.float32)
 

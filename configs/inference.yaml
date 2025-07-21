@@ -1,17 +1,3 @@
-pretrained_model: OUTPUT/text_dino_ground_mvimgnet/tag05/checkpoint_latest.pth
-config_file: configs/anydoor.yaml
+pretrained_model: checkpoints/checkpoint_latest.pth
+config_file: configs/groundingbooth.yaml
 save_memory: False
-
-test_dataset_names: 
-  
-  COCODetection:
-    which_layer_text: before
-    which_layer_image: after_reproject
-    image_size: 512
-    max_boxes_per_data: 10
-    prob_use_caption: 1.0
-    random_drop_embedding: none
-    random_crop: False
-    random_flip: False
-    ref_zero: False
-    ref_mask: False

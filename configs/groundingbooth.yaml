@@ -80,15 +80,14 @@ model:
 
     cond_stage_config:
       target: ldm.modules.encoders.modules.FrozenDinoV2Encoder
-      weight: checkpoints/dinov2_vitg14_pretrain.pth  #path/dinov2_vitg14_pretrain.pth
+      weight: checkpoints/dinov2_vitg14_pretrain.pth  
 
     cond_stage_config_txt:
-      target: ldm.modules.encoders.modules.FrozenOpenCLIPEmbedder  #原版controlnet
+      target: ldm.modules.encoders.modules.FrozenOpenCLIPEmbedder  
       params:
         freeze: True
         layer: "penultimate"
    
-    # from GLIGEN
     cond_stage_config_grounding:
       target: grounding_input.text_image_grounding_tokinzer_input.GroundingNetInput
       grounding_tokenizer_input:

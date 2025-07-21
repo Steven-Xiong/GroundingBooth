@@ -11,7 +11,6 @@ class PositionNet(nn.Module):
         super().__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim 
-        # import pdb; pdb.set_trace()
         self.fourier_embedder = FourierEmbedder(num_freqs=fourier_freqs)
         self.position_dim = fourier_freqs*2*4 # 2 is sin&cos, 4 is xyxy 
 
@@ -53,7 +52,6 @@ class PositionNet(nn.Module):
         xyxy_null  = self.null_position_feature.view(1,1,-1) # 1*1*C
 
         # replace padding with learnable null embedding 
-        # import pdb; pdb.set_trace()
         text_embeddings  = text_embeddings*text_masks  + (1-text_masks)*text_null       # [2,30,768]
         image_embeddings = image_embeddings*image_masks + (1-image_masks)*image_null    # [2,30,768]
         xyxy_embedding = xyxy_embedding*masks + (1-masks)*xyxy_null                     # [2, 30, 64]

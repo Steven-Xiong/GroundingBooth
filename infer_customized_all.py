@@ -1,5 +1,3 @@
-## this is for lvis validation set
-
 import argparse
 from PIL import Image, ImageDraw
 from omegaconf import OmegaConf
@@ -21,7 +19,7 @@ import torchvision.transforms.functional as TF
 import torchvision.transforms as transforms
 
 
-# from torch.utils.data import ConcatDataset
+
 from torch.utils.data import DataLoader
 from dataset.dreambooth_specific_box_all import DreamBoothDataset
 from dataset.mvimgnet import MVImageNet_Grounding
@@ -111,7 +109,6 @@ def load_ckpt(ckpt_path):
     # donot need to load official_ckpt for self.model here, since we will load from our ckpt
     model.load_state_dict( saved_ckpt['model'] )
     autoencoder.load_state_dict( saved_ckpt["autoencoder"]  )
-    # import pdb; pdb.set_trace()
     text_encoder.load_state_dict( saved_ckpt["text_encoder"],strict = False  )  #版本问题, 不确定是否有影响
     image_encoder.load_state_dict( saved_ckpt["image_encoder"]  )
     image_encoder_global.load_state_dict( saved_ckpt["image_encoder_global"]  )
@@ -436,7 +433,6 @@ def run(batch, caption, config, meta, starting_noise=None):
     grounding_input['ref_box'] = grounding_input['ref_box'].to(device)
     
     box_layout = batch["layout"].permute(0,3,1,2).float().cuda()
-    # import pdb; pdb.set_trace()
     input = dict(
                 x = starting_noise, 
                 timesteps = None, 
@@ -450,7 +446,6 @@ def run(batch, caption, config, meta, starting_noise=None):
     
     # - - - - - start sampling - - - - - #
     shape = (config.batch_size, model.in_channels, model.image_size, model.image_size)
-    # import pdb; pdb.set_trace()
 
     samples_fake = sampler.sample(S=steps, shape=shape, input=input,  uc=uc, guidance_scale=config.guidance_scale, mask=inpainting_mask, x0=z0)
     samples_fake = autoencoder.decode(samples_fake)
@@ -536,7 +531,6 @@ if __name__ == "__main__":
     processor = CLIPProcessor.from_pretrained(version)
         
     if not os.path.exists(save_dir_gen):
-        # import pdb; pdb.set_trace()
         os.mkdir(save_dir_gen)
     if not os.path.exists(save_dir_gt):
         os.mkdir(save_dir_gt)    
@@ -548,7 +542,6 @@ if __name__ == "__main__":
         os.mkdir(save_dir_ref_layout)    
     if not os.path.exists(save_dir_all):
         os.mkdir(save_dir_all)    
-    # import pdb; pdb.set_trace()
     # data = os.listdir( '/project/osprey/scratch/x.zhexiao/GLIGEN/data/dreambooth_withmask/dataset/')
     # print(data)
     if args.dataset == 'dreambench':
@@ -574,13 +567,9 @@ if __name__ == "__main__":
     gt_boxes = []
     from ultralytics import YOLO
 
-    # Load a model
-    # model = YOLO("yolov8n.yaml")  # build a new model from scratch
-    yolo_model = YOLO("./pretrained/yolov8n.pt")  # load a pretrained model (recommended for training)
     
     
     # - - - - - prepare models - - - - - # 
-    # import pdb; pdb.set_trace()
     meta = meta_list[0]
     
     model, autoencoder, text_encoder, image_encoder, image_encoder_global, diffusion, config = load_ckpt(args.ckpt_path) #对应自己的模型
@@ -642,17 +631,14 @@ if __name__ == "__main__":
                 text_embeddings.append(torch.cat(text_inbatch_embeddings,dim=0).unsqueeze(0))
                 image_embeddings.append(torch.cat(image_inbatch_embeddings,dim=0).unsqueeze(0))
                 
-            # import pdb; pdb.set_trace()
             batch['text_embeddings'] = torch.cat(text_embeddings, dim=0)
             batch['image_embeddings'] = torch.cat(image_embeddings,dim=0)
             
             batch["image_embeddings_ref"] = batch['image_embeddings'][:, 0, :] #image_after_features
             
             batch['ref'] = batch['ref'].float()
-            # import pdb; pdb.set_trace()
             gen_image = run(batch,caption,config,meta)   #(ref_image, ref_mask, gt_image.copy(), tar_mask)
             
-            # image_name = batch['img_path'][0].split('/')[-1]
             image_name = object_name + '_' + caption + '.png'
             gen_path = os.path.join(save_dir_gen, image_name)
             gt_path = os.path.join(save_dir_gt, image_name)
@@ -660,7 +646,6 @@ if __name__ == "__main__":
             layout_path = os.path.join(save_dir_layout,image_name)
             ref_layout_path = os.path.join(save_dir_ref_layout,image_name)
             concat_path = os.path.join(save_dir_all,image_name)
-            # import pdb; pdb.set_trace()
             gen_image = cv2.cvtColor(gen_image, cv2.COLOR_BGR2RGB)
             ref_image = cv2.cvtColor((ref_image.numpy()* 255.0).transpose(1,2,0), cv2.COLOR_BGR2RGB)
             gt_image = cv2.cvtColor(((gt_image.numpy()+1.0)/2 * 255.0).transpose(1,2,0), cv2.COLOR_BGR2RGB)

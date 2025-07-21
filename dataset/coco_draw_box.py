@@ -140,7 +140,6 @@ class BaseDataset_t2i(Dataset):
 
 
     def check_region_size(self, image, yyxx, ratio, mode = 'max'):
-        # import pdb; pdb.set_trace()
         pass_flag = True
         H,W = image.shape[0], image.shape[1]
         H,W = H * ratio, W * ratio
@@ -167,7 +166,7 @@ class BaseDataset_t2i(Dataset):
                 if idx >= len(self.data):
                     raise IndexError("End of dataset reached without finding a valid image")
         
-        # 这里废弃了
+
         #             return 0
         #         return self.get_sample(idx)
 
@@ -300,7 +299,6 @@ class BaseDataset_t2i(Dataset):
         - thickness: 边框的厚度。
         """
         H, W, C = tensor.shape
-        # import pdb; pdb.set_trace()
         
         x_min, y_min, x_max, y_max = boxes
         x_min, y_min, x_max, y_max = int(x_min * W), int(y_min * H), int(x_max * W), int(y_max * H)
@@ -321,11 +319,9 @@ class BaseDataset_t2i(Dataset):
         # layout_multi = torch.zeros(512, 512, 3)
         fill_value = torch.tensor([150/255, 150/255, 150/255], dtype=torch.float32)
         layout_multi = torch.ones((512, 512, 3), dtype=torch.float32) * fill_value
-        # import pdb; pdb.set_trace()
         for anno in anno_list:
             # anno = anno_list[idx]
-            # import pdb; pdb.set_trace()
-            ref_mask = self.coco_api.annToMask(anno)  #这个是ref condition
+            ref_mask = self.coco_api.annToMask(anno)
             tar_image, tar_mask = ref_image.copy(), ref_mask.copy()
             # assert mask_score(ref_mask) > 0.90   # 0.90 改低一点，增加训练数量
             # assert self.check_mask_area(ref_mask) == True
@@ -342,7 +338,6 @@ class BaseDataset_t2i(Dataset):
 
             ####### 6.14 换一种更简单的写法，只做原图级别的剪裁，对于其他也保持一致，保证是整个图
             # tar_box_yyxx_crop = box2squre(tar_image, ref_box_yyxx)
-            # import pdb; pdb.set_trace()
             ref_image_squared = pad_to_square(ref_image, pad_value = 0)  #  7.25修改
             ref_mask_3_squared = pad_to_square(ref_mask_3, pad_value = 0)
             ref_mask_3_squared = cv2.resize(ref_mask_3_squared, (512, 512), interpolation=cv2.INTER_AREA).astype(np.float32)
@@ -372,7 +367,6 @@ class BaseDataset_t2i(Dataset):
             layout_multi = self.draw_bboxes_all(layout_multi, bbox)
             
 
-        # import pdb; pdb.set_trace()
         if len(boxes) < self.max_boxes:
             boxes.extend([np.array([0, 0, 0, 0])] * (self.max_boxes - len(boxes)))
         elif len(boxes) >= self.max_boxes:
@@ -395,7 +389,6 @@ class BaseDataset_t2i(Dataset):
         # assert self.check_mask_area(tar_mask)  == True
 
         # Get the outline Box of the reference image
-        # import pdb; pdb.set_trace()
         ref_box_yyxx = get_bbox_from_mask(ref_mask)
         # print('ref_box_yyxx',ref_box_yyxx)
         # assert self.check_region_size(ref_mask, ref_box_yyxx, ratio = 0.10, mode = 'min') == True
@@ -409,7 +402,6 @@ class BaseDataset_t2i(Dataset):
         y1,y2,x1,x2 = ref_box_yyxx
 
         ####### 6.14 换一种更简单的写法，只做原图级别的剪裁，对于其他也保持一致，保证是整个图
-        # import pdb; pdb.set_trace()
         # tar_box_yyxx_crop = box2squre(tar_image, ref_box_yyxx)
         ref_image = pad_to_square(ref_image, pad_value = 0)
         # tar_box_yyxx_squared = box2squre(ref_image, ref_box_yyxx) # square之后的bbox坐标
@@ -429,7 +421,7 @@ class BaseDataset_t2i(Dataset):
         
         masked_ref_image = masked_ref_image[y1:y2,x1:x2,:]  #(70,216,3) 只有该物体，将其抠出来. masked_ref_image1.png
         ref_mask = ref_mask[y1:y2,x1:x2]
-        # 5.30 这里不要做expand了  7.11 重新做？
+
         if self.mode == 'train':
             ratio = np.random.randint(11, 15) / 10 
             masked_ref_image, ref_mask = expand_image_mask(masked_ref_image, ref_mask, ratio=ratio)
@@ -463,7 +455,6 @@ class BaseDataset_t2i(Dataset):
         
 
         # ========= Training Target ===========
-        # import pdb; pdb.set_trace()
         tar_box_yyxx = get_bbox_from_mask(tar_mask)
         # 6.6 不做expand
         # tar_box_yyxx = expand_bbox(tar_mask, tar_box_yyxx, ratio=[1.1,1.2]) #1.1  1.3
@@ -480,7 +471,6 @@ class BaseDataset_t2i(Dataset):
         tar_box_yyxx = box_in_box(tar_box_yyxx, tar_box_yyxx_crop)
         y1,y2,x1,x2 = tar_box_yyxx
 
-        # import pdb; pdb.set_trace()
         layout = np.zeros((tar_box_yyxx_crop[1]-tar_box_yyxx_crop[0], tar_box_yyxx_crop[3]-tar_box_yyxx_crop[2], 3), dtype=np.float32)
         layout[y1:y2,x1:x2,:] = [1.0, 1.0, 1.0]
         layout = pad_to_square(layout, pad_value = 0, random = False)
@@ -511,14 +501,12 @@ class BaseDataset_t2i(Dataset):
         ref_image_collage = cv2.resize(ref_image_collage.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = cv2.resize(ref_mask_compose.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = (ref_mask_compose > 128).astype(np.uint8)
-        # import pdb; pdb.set_trace()
         collage = np.zeros(cropped_target_image.shape, dtype=np.uint8)  #改成ones？
-        # collage = cropped_target_image.copy()   #这里collage是否改为不要背景？ 
+ 
 
         collage[y1:y2,x1:x2,:] = ref_image_collage
         
-        # import pdb; pdb.set_trace()
-        collage_mask = cropped_target_image.copy() * 0.0   #这里翻一下, mask掉背景? 应该不用改
+        collage_mask = cropped_target_image.copy() * 0.0
         collage_mask[y1:y2,x1:x2,:] = 1.0
 
         # if np.random.uniform(0, 1) < 0.7: 
@@ -531,12 +519,10 @@ class BaseDataset_t2i(Dataset):
         collage = pad_to_square(collage, pad_value = 0, random = False).astype(np.uint8)
         collage_mask = pad_to_square(collage_mask, pad_value = 2, random = False).astype(np.uint8)
         H2, W2 = collage.shape[0], collage.shape[1]
-        # import pdb; pdb.set_trace()
         cropped_target_image = cv2.resize(cropped_target_image.astype(np.uint8), (512,512)).astype(np.float32)
         collage = cv2.resize(collage.astype(np.uint8), (512,512)).astype(np.float32)
         collage_mask  = cv2.resize(collage_mask.astype(np.uint8), (512,512),  interpolation = cv2.INTER_NEAREST).astype(np.float32) #可以直接当做layout
         collage_mask[collage_mask == 2] = -1
-        # import pdb; pdb.set_trace()
         # Prepairing dataloader items
         masked_ref_image_aug = masked_ref_image_aug  / 255 
         # masked_ref_image_aug = masked_ref_image_aug  / 127.5 -1.0
@@ -557,7 +543,6 @@ class COCODataset(BaseDataset_t2i):
     def __init__(self, image_dir, json_path, mode ='train'):
         self.image_dir = image_dir
         self.json_path = json_path
-        # import pdb; pdb.set_trace()
         coco_api = COCO(json_path)
         img_ids = sorted(coco_api.imgs.keys())
         imgs = coco_api.loadImgs(img_ids)
@@ -567,7 +552,7 @@ class COCODataset(BaseDataset_t2i):
         #     anns = coco_api.loadAnns(ann_ids)
             
             
-        # 获取所有的注释ID
+
         coco = COCO(json_path)
         ann_ids = coco.getAnnIds()
         # 加载所有的注释
@@ -630,7 +615,6 @@ class COCODataset(BaseDataset_t2i):
             self.coco_json_path = 'data/coco/annotations/captions_val2017.json'
 
         self.coco_captions = self.load_captions(self.coco_json_path)
-        # import pdb; pdb.set_trace()
         self.coco_instances = coco
         self.img_ids = self.coco_instances.getImgIds()
         
@@ -653,7 +637,6 @@ class COCODataset(BaseDataset_t2i):
     
     def get_sample(self, idx):
         # ==== get pairs =====
-        # import pdb; pdb.set_trace()
         # image_name = self.data[idx]['coco_url'].split('/')[-1]
         # image_path = os.path.join(self.image_dir, image_name)
         
@@ -666,7 +649,6 @@ class COCODataset(BaseDataset_t2i):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         ref_image = image
         
-        # import pdb; pdb.set_trace()
         # anno = self.annos['image_id'] #self.annos[idx]
         obj_ids = []
         # area_tmp = 0
@@ -677,7 +659,6 @@ class COCODataset(BaseDataset_t2i):
         # layout_all = []
         # layout_multi = torch.zeros(image.shape[0], image.shape[1], 3)
         # areas = []
-        # import pdb; pdb.set_trace()
         # if len(anno) == 0:
         #     # return 0
         #     raise ValueError(f"No annotations found for image at index {idx}.")
@@ -692,7 +673,6 @@ class COCODataset(BaseDataset_t2i):
         
             
         # obj_id = np.random.choice(obj_ids)
-        # import pdb; pdb.set_trace()
         # obj_id = obj_ids[-1]
         # areas = sorted(areas, reverse=True)
         
@@ -707,7 +687,6 @@ class COCODataset(BaseDataset_t2i):
         # anno = anno[obj_id]
         anno = anno_list[0]
         ref_mask = self.coco_api.annToMask(anno)  #这个是ref condition
-        # import pdb; pdb.set_trace()
         tar_image, tar_mask = ref_image.copy(), ref_mask.copy()
         
         item_with_collage = self.process_pairs_customized(ref_image, ref_mask, tar_image, tar_mask)  # add layout    #(500,333,3)
@@ -720,7 +699,6 @@ class COCODataset(BaseDataset_t2i):
             
         sampled_time_steps = self.sample_timestep()
         
-        # import pdb; pdb.set_trace()
         item_with_collage['time_steps'] = sampled_time_steps
         item_with_collage['anno_id'] = image_path
         
@@ -732,7 +710,6 @@ class COCODataset(BaseDataset_t2i):
         item_with_collage['ref_processed'] = image_crop
         item_with_collage['ref'] = item_with_collage['ref'].transpose(2,0,1).astype(np.float32)
         
-        # import pdb; pdb.set_trace()
         # captions = load_captions(self.coco_json_path)
         annos = self.coco_captions[anno['image_id']]
         item_with_collage['txt'] = annos
@@ -742,13 +719,11 @@ class COCODataset(BaseDataset_t2i):
         category_name = category_info['name']
         item_with_collage['positive'] = category_name
         
-        # import pdb; pdb.set_trace()
         item_with_collage['image_id'] = anno['image_id']
         item_with_collage['category_id'] = anno['category_id']
         
         item_with_collage['positive_all'] = []
         prompt_list = []
-        # import pdb; pdb.set_trace()
         # array = np.ones(self.max_boxes,dtype=np.int32) # 从zeros改成ones，不mask了
         array = torch.zeros(self.max_boxes)
         for anno in anno_list:
@@ -791,7 +766,6 @@ class COCODataset(BaseDataset_t2i):
         item_with_collage['box_ref'] = item_with_collage['boxes'][0:1]  #.unsqueeze(1)
         item_with_collage["image"] = item_with_collage["jpg"].transpose(2,0,1) #.transpose(1,2,0)
         
-        # import pdb; pdb.set_trace()
         return item_with_collage
 
     def __len__(self):

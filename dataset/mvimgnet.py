@@ -280,7 +280,6 @@ class BaseDataset_t2i(Dataset):
         assert self.check_mask_area(tar_mask)  == True
 
         # Get the outline Box of the reference image
-        # import pdb; pdb.set_trace()
         ref_box_yyxx = get_bbox_from_mask(ref_mask)
         # print('ref_box_yyxx',ref_box_yyxx)
         assert self.check_region_size(ref_mask, ref_box_yyxx, ratio = 0.01, mode = 'min') == True
@@ -341,7 +340,6 @@ class BaseDataset_t2i(Dataset):
         
 
         # ========= Training Target ===========
-        # import pdb; pdb.set_trace()
         tar_box_yyxx = get_bbox_from_mask(tar_mask)
         # 6.6 不做expand
         # tar_box_yyxx = expand_bbox(tar_mask, tar_box_yyxx, ratio=[1.0,1.2]) #1.1  1.3
@@ -358,7 +356,6 @@ class BaseDataset_t2i(Dataset):
         tar_box_yyxx = box_in_box(tar_box_yyxx, tar_box_yyxx_crop)
         y1,y2,x1,x2 = tar_box_yyxx
 
-        # import pdb; pdb.set_trace()
         layout = np.zeros((tar_box_yyxx_crop[1]-tar_box_yyxx_crop[0], tar_box_yyxx_crop[3]-tar_box_yyxx_crop[2], 3), dtype=np.float32)
         layout[y1:y2,x1:x2,:] = [1.0, 1.0, 1.0]
         layout = pad_to_square(layout, pad_value = 0, random = False)
@@ -392,13 +389,11 @@ class BaseDataset_t2i(Dataset):
         ref_image_collage = cv2.resize(ref_image_collage.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = cv2.resize(ref_mask_compose.astype(np.uint8), (x2-x1, y2-y1))
         ref_mask_compose = (ref_mask_compose > 128).astype(np.uint8)
-        # import pdb; pdb.set_trace()
         collage = np.zeros(cropped_target_image.shape, dtype=np.uint8)  #改成ones？
         # collage = cropped_target_image.copy()   #这里collage是否改为不要背景？ 
 
         collage[y1:y2,x1:x2,:] = ref_image_collage
         
-        # import pdb; pdb.set_trace()
         collage_mask = cropped_target_image.copy() * 0.0   #这里翻一下, mask掉背景? 应该不用改
         collage_mask[y1:y2,x1:x2,:] = 1.0
 
@@ -407,31 +402,26 @@ class BaseDataset_t2i(Dataset):
             collage_mask = np.stack([cropped_tar_mask,cropped_tar_mask,cropped_tar_mask],-1)
 
         H1, W1 = collage.shape[0], collage.shape[1]
-        # import pdb; pdb.set_trace()
         cropped_target_image = pad_to_square(cropped_target_image, pad_value = 0, random = False).astype(np.uint8)
         collage = pad_to_square(collage, pad_value = 0, random = False).astype(np.uint8)
         collage_mask = pad_to_square(collage_mask, pad_value = 2, random = False).astype(np.uint8)
         H2, W2 = collage.shape[0], collage.shape[1]
-        # import pdb; pdb.set_trace()
         cropped_target_image = cv2.resize(cropped_target_image.astype(np.uint8), (512,512)).astype(np.float32)
         collage = cv2.resize(collage.astype(np.uint8), (512,512)).astype(np.float32)
         collage_mask  = cv2.resize(collage_mask.astype(np.uint8), (512,512),  interpolation = cv2.INTER_NEAREST).astype(np.float32) #可以直接当做layout
         collage_mask[collage_mask == 2] = -1
-        # import pdb; pdb.set_trace()
         # Prepairing dataloader items
         masked_ref_image_aug = masked_ref_image_aug  / 255 
         # masked_ref_image_aug = masked_ref_image_aug  / 127.5 -1.0
         cropped_target_image = cropped_target_image / 127.5 - 1.0
         collage = collage / 127.5 - 1.0         # [-1,1]之间
         collage = np.concatenate([collage, collage_mask[:,:,:1]  ] , -1)
-        # import pdb; pdb.set_trace()
         '''
         layout = pad_to_square(layout, pad_value = 0, random = False).astype(np.uint8)
         layout =  cv2.resize(layout.astype(np.uint8),(512,512)).astype(np.float32)
         #转灰度？
         layout = layout /127.5 - 1.0
         '''
-        # import pdb; pdb.set_trace()
         # layout = np.zeros((tar_image.shape[0], tar_image.shape[1], 3), dtype=np.uint8)
         # layout[y1:y2,x1:x2,:] = [1.0, 1.0, 1.0]
         # layout = layout *2.0 -1.0
@@ -464,7 +454,6 @@ class BaseDataset_t2i(Dataset):
 
 class MVImageNet_Grounding(BaseDataset_t2i):
     def __init__(self, txt, image_dir, mode ='train'):
-        # import pdb; pdb.set_trace()
         with open(txt,"r") as f:
             data = f.read().split('\n')[:-1]    
         self.image_dir = image_dir 
@@ -474,7 +463,6 @@ class MVImageNet_Grounding(BaseDataset_t2i):
         self.dynamic = 2
         self.mask_dir = image_dir + 'mask/'
         self.caption_dir = image_dir + 'captions/all.csv'
-        # import pdb; pdb.set_trace()
         # load captions
         self.caption_index = {}
         with open(self.caption_dir, newline='') as csvfile:
@@ -494,18 +482,15 @@ class MVImageNet_Grounding(BaseDataset_t2i):
         # image_count = 0
         # for folder in self.data:
         #     image_count += len(glob.glob(folder.replace('MVDir/', self.image_dir)))
-        # import pdb; pdb.set_trace()
         
         # version = "openai/clip-vit-large-patch14"
         # self.clip_model = CLIPModel.from_pretrained(version) #.cuda()
         # self.processor = CLIPProcessor.from_pretrained(version)
         # self.transform_to_pil = transforms.ToPILImage()
-        # # import pdb; pdb.set_trace()
         # self.get_clip_feature = get_clip_feature(model=self.clip_model, processor=self.processor,input=None, is_image=True)
         # self.projection_matrix = torch.load('projection_matrix') #.cuda()
         self.max_boxes = 10
         
-        # import pdb; pdb.set_trace()
 
         self.preprocess = transforms.Compose([
             transforms.ToTensor(),
@@ -533,7 +518,6 @@ class MVImageNet_Grounding(BaseDataset_t2i):
         return pass_flag
 
     def get_alpha_mask(self, mask_path):
-        # import pdb; pdb.set_trace()
         image = cv2.imread( mask_path) #, cv2.IMREAD_UNCHANGED
         mask = (image[:,:,-1] > 128).astype(np.uint8)
         return mask
@@ -577,7 +561,6 @@ class MVImageNet_Grounding(BaseDataset_t2i):
         # object_dir = self.data[idx].replace('MVDir/', self.image_dir)
         # 手动加mask dir
         # mask_dir = self.data[idx].replace('MVDir/', self.mask_dir).replace('/images','')
-        # import pdb; pdb.set_trace()
         mask_dir = os.path.join(self.mask_dir, self.data[idx])
         object_dir = os.path.join(self.image_dir, self.data[idx],'images')
 
@@ -635,7 +618,6 @@ class MVImageNet_Grounding(BaseDataset_t2i):
 
         tar_image = cv2.imread(tar_image_path).astype(np.uint8)
         tar_image = cv2.cvtColor(tar_image, cv2.COLOR_BGR2RGB)
-        # import pdb; pdb.set_trace()
         if ref_mask_path.endswith('bg_removed.png.png') == False:  #
             ref_mask = self.get_alpha_mask(ref_mask_path)
             tar_mask = self.get_alpha_mask(tar_mask_path)
@@ -643,10 +625,8 @@ class MVImageNet_Grounding(BaseDataset_t2i):
             ref_mask = np.full((tar_image.shape[0], tar_image.shape[1]), 255, dtype=np.uint8)
             tar_mask = np.full((tar_image.shape[0], tar_image.shape[1]), 255, dtype=np.uint8)
         
-        # import pdb; pdb.set_trace()
         target_index = os.path.join(tar_image_path.split('/')[-4],tar_image_path.split('/')[-3],tar_image_path.split('/')[-2],tar_image_path.split('/')[-1])
         caption = self.caption_index[target_index]
-        # import pdb; pdb.set_trace()
         bbox = self.seg2bbox(np.stack([tar_mask,tar_mask,tar_mask],-1))  #将seg map补全成mask,对应1920*1080
         # 创建一个全黑的图片
         
@@ -659,10 +639,8 @@ class MVImageNet_Grounding(BaseDataset_t2i):
         # layout = np.zeros((tar_image.shape[0], tar_image.shape[1], 3), dtype=np.uint8)
         # layout[bbox[0]:bbox[2], bbox[1]:bbox[3]] = [255, 255, 255]
 
-        # import pdb; pdb.set_trace()
         # ref_image (h,w,3), [0,255] int   ref_mask (h,w), [0,1] int
         item_with_collage = self.process_pairs_customized_mvimagenet(ref_image, ref_mask, tar_image, tar_mask) #全部[1920,1080]      
-        # import pdb; pdb.set_trace()
         # ref_image_resized = pad_to_square(ref_image, pad_value = 255, random = False)
         # ref_image_resized = cv2.resize(ref_image_resized.astype(np.uint8), (224,224)).astype(np.uint8) / 255
         # plt.imsave('ref_img_resized.jpg',item_with_collage['ref'])
@@ -674,7 +652,6 @@ class MVImageNet_Grounding(BaseDataset_t2i):
         item_with_collage['time_steps'] = sampled_time_steps
         
     
-        # import pdb; pdb.set_trace()
         #找对应tag
         folder = object_dir.split('/')[-3]
         id2class = {v: k for k, v in class2id.items()}
@@ -687,7 +664,6 @@ class MVImageNet_Grounding(BaseDataset_t2i):
         prompt_list.append(class_key)
         prompt_list.extend([''] * (self.max_boxes - 1))
         item_with_collage['positive_all'] = ','.join(prompt_list)
-        # import pdb; pdb.set_trace()
             
         # bbox需要归一化,是吗
         # bbox = np.array(bbox,dtype=np.float32)   #这里的bbox对应的是原图尺寸 1920*1080
@@ -699,10 +675,8 @@ class MVImageNet_Grounding(BaseDataset_t2i):
         
         # y1,y2,x1,x2 = item_with_collage['tar_box_yyxx_crop']
         item_with_collage['layout_all'] = item_with_collage['layout']
-        # import pdb; pdb.set_trace()
         image_crop = self.preprocess(item_with_collage['ref']).float()
         item_with_collage['ref_processed'] = image_crop
-        # import pdb; pdb.set_trace()
         item_with_collage['ref'] = item_with_collage['ref'].transpose(2,0,1).astype(np.float32)
 
         # add random drop

@@ -393,7 +393,6 @@ class UNetModel(nn.Module):
             nn.SiLU(),
             zero_module(conv_nd(dims, model_channels, out_channels, 3, padding=1)),
         )
-        # import pdb; pdb.set_trace()
         self.position_net = instantiate_from_config(grounding_tokenizer) 
         
         
@@ -429,7 +428,6 @@ class UNetModel(nn.Module):
         if self.training and random.random() < 0.1 and self.grounding_tokenizer_input.set: # random drop for guidance  
             grounding_input = self.grounding_tokenizer_input.get_null_input()
 
-        # import pdb; pdb.set_trace()
         # Grounding tokens: B*N*C
         objs = self.position_net( **grounding_input ) 
         # try:
