@@ -165,39 +165,7 @@ class BaseDataset_t2i(Dataset):
                 idx += 1  # 9.10 去了这一句？
                 if idx >= len(self.data):
                     raise IndexError("End of dataset reached without finding a valid image")
-        
-
-        #             return 0
-        #         return self.get_sample(idx)
-
-
-        # except Exception as e:
-        #     try:
-        #         print(f"Skipping index {idx} due to error: {e}")
-        #         idx = (idx + 1) % len(self.data)
-        #     except Exception as e:
-        #         try:
-        #             print(f"Skipping index {idx+1} due to error: {e}")
-        #             idx = (idx + 2) % len(self.data)
-        #         except Exception as e:
-        #             print(f"Skipping index {idx+2} due to error: {e}")
-        #             idx = (idx + 3) % len(self.data)
-        #     return self.get_sample(idx) # 0
-        
-        # item = self.get_sample(idx)
-        # return item
-        # try:
-        #     item = self.get_sample(idx)
-        #     return item
-        # except:
-        #     item = self.get_sample(0)
-        #     return item
-            # print(idx)
-            # return None
-            # item = self.get_sample(0)
-            # return item
-            # # idx = np.random.randint(0, len(self.data)-1)
-            # print(idx)
+    
         #### train用这个    
         # while(True):
         #     try:
@@ -346,19 +314,6 @@ class BaseDataset_t2i(Dataset):
             bbox = np.array([x1_new/512, y1_new/512, x2_new/512, y2_new/512])
             boxes.append(bbox)
 
-            '''
-            tar_box_yyxx_squared = box2squre(ref_image, ref_box_yyxx) # 保证box不超出编辑
-            ratio = 512 / ref_image.shape[0]
-            y1_new,y2_new,x1_new,x2_new = tar_box_yyxx_squared 
-            y1_new,y2_new,x1_new,x2_new = int(y1_new * ratio), int(y2_new * ratio),int(x1_new*ratio),int(x2_new * ratio)
-            bbox = np.array([x1_new/512, y1_new/512, x2_new/512, y2_new/512])
-            boxes.append(bbox)
-            '''
-            # generate the whole layout
-            # layout = np.zeros((image_tensor.shape[1], image_tensor.shape[2], 3), dtype=np.float32)
-            # layout[int(box[1]*self.image_size):int(box[3]*self.image_size), int(box[0]*self.image_size):int(box[2]*self.image_size)] = [1.0, 1.0, 1.0]
-            # layout = np.full((512, 512, 3), (150/255, 150/255, 150/255), dtype=np.float32)
-            # layout[y1_new:y2_new,x1_new:x2_new,:] = [1.0, 0.0, 0.0] # 红色
 
             fill_value = torch.tensor([150/255, 150/255, 150/255], dtype=torch.float32)
             layout1 = torch.ones((512, 512, 3), dtype=torch.float32) * fill_value
@@ -404,16 +359,7 @@ class BaseDataset_t2i(Dataset):
         ####### 6.14 换一种更简单的写法，只做原图级别的剪裁，对于其他也保持一致，保证是整个图
         # tar_box_yyxx_crop = box2squre(tar_image, ref_box_yyxx)
         ref_image = pad_to_square(ref_image, pad_value = 0)
-        # tar_box_yyxx_squared = box2squre(ref_image, ref_box_yyxx) # square之后的bbox坐标
         
-        # ratio = 512 / ref_image.shape[0]
-        # y1_new,y2_new,x1_new,x2_new = tar_box_yyxx_squared 
-        # y1_new,y2_new,x1_new,x2_new = int(y1_new * ratio), int(y2_new * ratio),int(x1_new*ratio),int(x2_new * ratio)
-
-        # layout = np.zeros((512,512,3), dtype=np.float32)
-        # layout[y1_new:y2_new,x1_new:x2_new,:] = [1.0, 1.0, 1.0]
-        # # layout = pad_to_square(layout, pad_value = 0, random = False)
-        # layout = cv2.resize(layout.astype(np.uint8), (512, 512), interpolation=cv2.INTER_AREA).astype(np.float32)
         jpg = (cv2.resize(ref_image.astype(np.uint8), (512, 512), interpolation=cv2.INTER_AREA)/ 127.5 - 1.0).astype(np.float32) # [-1,1]之间
         # [-1,1]之间
         
@@ -546,13 +492,7 @@ class COCODataset(BaseDataset_t2i):
         coco_api = COCO(json_path)
         img_ids = sorted(coco_api.imgs.keys())
         imgs = coco_api.loadImgs(img_ids)
-        # # anns = [coco_api.getAnnIds[img_id] for img_id in img_ids]
-        # for img_id in img_ids:
-        #     ann_ids = coco_api.getAnnIds(imgIds=img_id, iscrowd=None) 
-        #     anns = coco_api.loadAnns(ann_ids)
             
-            
-
         coco = COCO(json_path)
         ann_ids = coco.getAnnIds()
         # 加载所有的注释
@@ -672,12 +612,7 @@ class COCODataset(BaseDataset_t2i):
         # assert len(anno) > 0
         
             
-        # obj_id = np.random.choice(obj_ids)
-        # obj_id = obj_ids[-1]
-        # areas = sorted(areas, reverse=True)
-        
-        # obj_ids.reverse()
-        # obj_ids_list = list[reversed(obj_ids)] #obj_ids.reverse()
+       
         anno_list = []
         for obj_id in obj_ids:
             anno_list.append(anno[obj_id])
