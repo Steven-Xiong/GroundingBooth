@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
 [![arXiv](https://img.shields.io/badge/arXiv-2409.08520-b31b1b.svg)](https://arxiv.org/abs/2409.08520)
+[![TMLR](https://img.shields.io/badge/Accepted-TMLR-blue.svg)](https://jmlr.org/tmlr/)
 [![Project Page](https://img.shields.io/badge/Project-Page-green.svg)](https://groundingbooth.github.io/)
 
 > **Note**: We are currently working on code cleanup and organization. The codebase is being continuously improved.
