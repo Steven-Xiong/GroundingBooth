@@ -10,7 +10,6 @@
 
 **Zhexiao Xiong**, **Wei Xiong**, **Jing Shi**, **He Zhang**, **Yizhi Song**, **Nathan Jacobs**
 
-*Washington University in St. Louis*
 
 ## 🛠️ Installation
 
