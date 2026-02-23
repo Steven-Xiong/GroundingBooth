@@ -6,8 +6,6 @@
 [![TMLR](https://img.shields.io/badge/Accepted-TMLR-blue.svg)](https://jmlr.org/tmlr/)
 [![Project Page](https://img.shields.io/badge/Project-Page-green.svg)](https://groundingbooth.github.io/)
 
-> **Note**: We are currently working on code cleanup and organization. The codebase is being continuously improved.
-
 ## 🛠️ Installation
 
 ```bash
