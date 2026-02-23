@@ -6,6 +6,8 @@
 [![TMLR](https://img.shields.io/badge/Accepted-TMLR-blue.svg)](https://jmlr.org/tmlr/)
 [![Project Page](https://img.shields.io/badge/Project-Page-green.svg)](https://groundingbooth.github.io/)
 
+## 🎉 ACCEPTED BY TRANSACTIONS ON MACHINE LEARNING RESEARCH (TMLR)
+
 ## 👥 Authors
 
 **Zhexiao Xiong**, **Wei Xiong**, **Jing Shi**, **He Zhang**, **Yizhi Song**, **Nathan Jacobs**
